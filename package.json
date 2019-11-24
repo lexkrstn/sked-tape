@@ -1,5 +1,6 @@
 {
   "name": "sked-tape",
+  "description": "Schedule component written in pure JS that represents events in tape manner.",
   "version": "0.0.1",
   "main": "src/main.ts",
   "scripts": {
