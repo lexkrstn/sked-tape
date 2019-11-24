@@ -1,6 +1,7 @@
 {
   "name": "sked-tape",
   "version": "0.0.1",
+  "main": "src/main.ts",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack --mode development",
