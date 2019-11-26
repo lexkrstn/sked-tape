@@ -4699,15 +4699,15 @@ var SkedTape = /** @class */ (function (_super) {
     SkedTape.prototype.cancelEventDrag = function () {
         if (this.dummyEvent) {
             // Put the dragged event back onto the timeline
-            var event_3 = this.dummyEvent.draggedEvent;
+            var event_3 = this.dummyEvent.draggedEvent || null;
             if (event_3) {
                 this.putEvent(event_3, { mayIntersect: true });
                 var location_3 = this.getLocation(event_3.locationId);
                 var events = this.filterLocationEvents(location_3.id);
                 this.materializePartial(this.renderEventRow(location_3, events));
-                if (this.onEventDragCancel) {
-                    this.onEventDragCancel(event_3);
-                }
+            }
+            if (this.onEventDragCancel) {
+                this.onEventDragCancel(event_3);
             }
             // Clean up the dummy
             this.dematerializePartial('dummyEvent');

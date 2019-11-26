@@ -645,7 +645,7 @@ export default class SkedTape extends VTree {
 
   public dragEvent(eventId: number) {
     // Skip if some event is being dragged right now
-    if (!this.isAdding()) {
+    if (!this.isDraggingEvent()) {
       const event = this.getEvent(eventId);
       // Make sure the event is allowed to be draggable
       if (!this.onEventBeforeDrag || this.onEventBeforeDrag(event)) {
@@ -702,7 +702,7 @@ export default class SkedTape extends VTree {
     this.materializePartial(this.renderLocations());
   }
 
-  public isAdding() {
+  public isDraggingEvent() {
     return !!this.dummyEvent;
   }
 
@@ -863,7 +863,7 @@ export default class SkedTape extends VTree {
 
   private handleEventContextMenu(mouseEvent: MouseEvent, currentTarget: HTMLElement) {
     mouseEvent.preventDefault();
-    if (this.rmbCancelsDrag && this.isAdding()) {
+    if (this.rmbCancelsDrag && this.isDraggingEvent()) {
       this.cancelEventDrag();
     } else if (this.onEventMenu) {
       const eventId = parseInt(currentTarget.dataset.eventId, 10);
@@ -881,7 +881,7 @@ export default class SkedTape extends VTree {
 
   private handleIntersectionContextMenu(mouseEvent: MouseEvent) {
     mouseEvent.preventDefault();
-    if (this.rmbCancelsDrag && this.isAdding()) {
+    if (this.rmbCancelsDrag && this.isDraggingEvent()) {
       this.cancelEventDrag();
     } else if (this.onIntersectionMenu) {
       const pointData = this.pick(mouseEvent);
@@ -903,7 +903,7 @@ export default class SkedTape extends VTree {
   private handleTimelineContextMenu(mouseEvent: MouseEvent) {
     if (!eventFromSkedEvent(mouseEvent)) {
       mouseEvent.preventDefault();
-      if (this.rmbCancelsDrag && this.isAdding()) {
+      if (this.rmbCancelsDrag && this.isDraggingEvent()) {
         this.cancelEventDrag();
       } else if (this.onTimelineMenu) {
         this.onTimelineMenu(mouseEvent, this.pick(mouseEvent));
@@ -1035,7 +1035,7 @@ export default class SkedTape extends VTree {
 
   private renderLocation(location: SkedLocation): VNode {
     let canAdd;
-    if (this.isAdding()) {
+    if (this.isDraggingEvent()) {
       canAdd = !this.canAddIntoLocation || this.canAddIntoLocation(location, this.dummyEvent);
     }
     let classes = this.locationClasses(location, canAdd);

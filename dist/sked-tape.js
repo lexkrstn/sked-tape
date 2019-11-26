@@ -4664,7 +4664,7 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.prototype.dragEvent = function (eventId) {
         // Skip if some event is being dragged right now
-        if (!this.isAdding()) {
+        if (!this.isDraggingEvent()) {
             var event_2 = this.getEvent(eventId);
             // Make sure the event is allowed to be draggable
             if (!this.onEventBeforeDrag || this.onEventBeforeDrag(event_2)) {
@@ -4717,7 +4717,7 @@ var SkedTape = /** @class */ (function (_super) {
         // Rerender the locations in order to apply some classes if needed
         this.materializePartial(this.renderLocations());
     };
-    SkedTape.prototype.isAdding = function () {
+    SkedTape.prototype.isDraggingEvent = function () {
         return !!this.dummyEvent;
     };
     SkedTape.prototype.setSnapToMins = function (mins) {
@@ -4857,7 +4857,7 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.prototype.handleEventContextMenu = function (mouseEvent, currentTarget) {
         mouseEvent.preventDefault();
-        if (this.rmbCancelsDrag && this.isAdding()) {
+        if (this.rmbCancelsDrag && this.isDraggingEvent()) {
             this.cancelEventDrag();
         }
         else if (this.onEventMenu) {
@@ -4874,7 +4874,7 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.prototype.handleIntersectionContextMenu = function (mouseEvent) {
         mouseEvent.preventDefault();
-        if (this.rmbCancelsDrag && this.isAdding()) {
+        if (this.rmbCancelsDrag && this.isDraggingEvent()) {
             this.cancelEventDrag();
         }
         else if (this.onIntersectionMenu) {
@@ -4896,7 +4896,7 @@ var SkedTape = /** @class */ (function (_super) {
     SkedTape.prototype.handleTimelineContextMenu = function (mouseEvent) {
         if (!Object(_helpers__WEBPACK_IMPORTED_MODULE_1__["eventFromSkedEvent"])(mouseEvent)) {
             mouseEvent.preventDefault();
-            if (this.rmbCancelsDrag && this.isAdding()) {
+            if (this.rmbCancelsDrag && this.isDraggingEvent()) {
                 this.cancelEventDrag();
             }
             else if (this.onTimelineMenu) {
@@ -5002,7 +5002,7 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.prototype.renderLocation = function (location) {
         var canAdd;
-        if (this.isAdding()) {
+        if (this.isDraggingEvent()) {
             canAdd = !this.canAddIntoLocation || this.canAddIntoLocation(location, this.dummyEvent);
         }
         var classes = this.locationClasses(location, canAdd);
