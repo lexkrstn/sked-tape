@@ -1,7 +1,7 @@
 {
   "name": "sked-tape",
   "description": "Schedule component written in pure JS that represents events in tape manner.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "src/main.ts",
   "scripts": {
     "start": "webpack-dev-server",
