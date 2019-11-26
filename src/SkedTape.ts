@@ -258,7 +258,9 @@ export interface SkedTapeCtorOptions {
   /// Fires when the event starts being dragged just after `onEventBeforeDrag()`.
   onEventDrag?: (event: SkedEvent) => void;
   /// Fires whenever an event stops being dragged either for RMB click or
-  /// programmatically call of `cancelEventDrag()`.
+  /// programmatically call of `cancelEventDrag()`. The sole argument refers
+  /// the event of timeline being dragged, which may be null (in case the drag
+  /// was started with dragNewEvent()).
   onEventDragCancel?: (event: SkedEvent) => void;
   /// Fires when the user tries to drop the event dragged into the incorrect
   /// position occupied by some other event yet.
@@ -681,15 +683,15 @@ export default class SkedTape extends VTree {
   public cancelEventDrag() {
     if (this.dummyEvent) {
       // Put the dragged event back onto the timeline
-      const event = this.dummyEvent.draggedEvent;
+      const event = this.dummyEvent.draggedEvent || null;
       if (event) {
         this.putEvent(event, { mayIntersect: true });
         const location = this.getLocation(event.locationId);
         const events = this.filterLocationEvents(location.id);
         this.materializePartial(this.renderEventRow(location, events));
-        if (this.onEventDragCancel) {
-          this.onEventDragCancel(event);
-        }
+      }
+      if (this.onEventDragCancel) {
+        this.onEventDragCancel(event);
       }
       // Clean up the dummy
       this.dematerializePartial('dummyEvent');
