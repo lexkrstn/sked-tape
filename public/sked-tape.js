@@ -5599,7 +5599,7 @@ var SkedTape = /** @class */ (function (_super) {
     SkedTape.prototype.completeEventDrag = function () {
         var event = this.dummyEvent;
         // Check for collisions
-        if (this.collide(event) || isNaN(event.locationId) || !event.start) {
+        if (isNaN(event.locationId) || !event.start || this.collide(event)) {
             if (this.onEventDropRefusal) {
                 this.onEventDropRefusal(event);
             }
@@ -5613,7 +5613,7 @@ var SkedTape = /** @class */ (function (_super) {
                 this.dematerializePartial('dummyEvent');
                 delete this.dummyEvent;
                 // We've checked the locationId to be non NaN above
-                var newEvent = this.putEvent(event.draggedEvent);
+                var newEvent = this.putEvent(__assign(__assign({}, lodash_cloneDeep__WEBPACK_IMPORTED_MODULE_1___default()(event.draggedEvent)), { end: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event.end), locationId: event.locationId, start: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event.start) }));
                 // Rerender the row of events
                 var location_4 = this.getLocation(event.locationId);
                 var events = this.filterLocationEvents(location_4.id);

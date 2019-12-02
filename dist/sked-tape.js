@@ -1252,6 +1252,41 @@ module.exports = baseFlatten;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_baseGet.js":
+/*!*****************************************!*\
+  !*** ./node_modules/lodash/_baseGet.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var castPath = __webpack_require__(/*! ./_castPath */ "./node_modules/lodash/_castPath.js"),
+    toKey = __webpack_require__(/*! ./_toKey */ "./node_modules/lodash/_toKey.js");
+
+/**
+ * The base implementation of `_.get` without support for default values.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @returns {*} Returns the resolved value.
+ */
+function baseGet(object, path) {
+  path = castPath(path, object);
+
+  var index = 0,
+      length = path.length;
+
+  while (object != null && index < length) {
+    object = object[toKey(path[index++])];
+  }
+  return (index && index == length) ? object : undefined;
+}
+
+module.exports = baseGet;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_baseGetAllKeys.js":
 /*!************************************************!*\
   !*** ./node_modules/lodash/_baseGetAllKeys.js ***!
@@ -1823,6 +1858,48 @@ module.exports = baseSetToString;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_baseSlice.js":
+/*!*******************************************!*\
+  !*** ./node_modules/lodash/_baseSlice.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * The base implementation of `_.slice` without an iteratee call guard.
+ *
+ * @private
+ * @param {Array} array The array to slice.
+ * @param {number} [start=0] The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the slice of `array`.
+ */
+function baseSlice(array, start, end) {
+  var index = -1,
+      length = array.length;
+
+  if (start < 0) {
+    start = -start > length ? 0 : (length + start);
+  }
+  end = end > length ? length : end;
+  if (end < 0) {
+    end += length;
+  }
+  length = start > end ? 0 : ((end - start) >>> 0);
+  start >>>= 0;
+
+  var result = Array(length);
+  while (++index < length) {
+    result[index] = array[index + start];
+  }
+  return result;
+}
+
+module.exports = baseSlice;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_baseTimes.js":
 /*!*******************************************!*\
   !*** ./node_modules/lodash/_baseTimes.js ***!
@@ -1854,6 +1931,54 @@ module.exports = baseTimes;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_baseToString.js":
+/*!**********************************************!*\
+  !*** ./node_modules/lodash/_baseToString.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Symbol = __webpack_require__(/*! ./_Symbol */ "./node_modules/lodash/_Symbol.js"),
+    arrayMap = __webpack_require__(/*! ./_arrayMap */ "./node_modules/lodash/_arrayMap.js"),
+    isArray = __webpack_require__(/*! ./isArray */ "./node_modules/lodash/isArray.js"),
+    isSymbol = __webpack_require__(/*! ./isSymbol */ "./node_modules/lodash/isSymbol.js");
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = Symbol ? Symbol.prototype : undefined,
+    symbolToString = symbolProto ? symbolProto.toString : undefined;
+
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (isArray(value)) {
+    // Recursively convert values (susceptible to call stack limits).
+    return arrayMap(value, baseToString) + '';
+  }
+  if (isSymbol(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
+
+module.exports = baseToString;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_baseUnary.js":
 /*!*******************************************!*\
   !*** ./node_modules/lodash/_baseUnary.js ***!
@@ -1875,6 +2000,37 @@ function baseUnary(func) {
 }
 
 module.exports = baseUnary;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/_baseUnset.js":
+/*!*******************************************!*\
+  !*** ./node_modules/lodash/_baseUnset.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var castPath = __webpack_require__(/*! ./_castPath */ "./node_modules/lodash/_castPath.js"),
+    last = __webpack_require__(/*! ./last */ "./node_modules/lodash/last.js"),
+    parent = __webpack_require__(/*! ./_parent */ "./node_modules/lodash/_parent.js"),
+    toKey = __webpack_require__(/*! ./_toKey */ "./node_modules/lodash/_toKey.js");
+
+/**
+ * The base implementation of `_.unset`.
+ *
+ * @private
+ * @param {Object} object The object to modify.
+ * @param {Array|string} path The property path to unset.
+ * @returns {boolean} Returns `true` if the property is deleted, else `false`.
+ */
+function baseUnset(object, path) {
+  path = castPath(path, object);
+  object = parent(object, path);
+  return object == null || delete object[toKey(last(path))];
+}
+
+module.exports = baseUnset;
 
 
 /***/ }),
@@ -1924,6 +2080,38 @@ function castArrayLikeObject(value) {
 }
 
 module.exports = castArrayLikeObject;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/_castPath.js":
+/*!******************************************!*\
+  !*** ./node_modules/lodash/_castPath.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isArray = __webpack_require__(/*! ./isArray */ "./node_modules/lodash/isArray.js"),
+    isKey = __webpack_require__(/*! ./_isKey */ "./node_modules/lodash/_isKey.js"),
+    stringToPath = __webpack_require__(/*! ./_stringToPath */ "./node_modules/lodash/_stringToPath.js"),
+    toString = __webpack_require__(/*! ./toString */ "./node_modules/lodash/toString.js");
+
+/**
+ * Casts `value` to a path array if it's not one.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {Array} Returns the cast property path array.
+ */
+function castPath(value, object) {
+  if (isArray(value)) {
+    return value;
+  }
+  return isKey(value, object) ? [value] : stringToPath(toString(value));
+}
+
+module.exports = castPath;
 
 
 /***/ }),
@@ -2266,6 +2454,33 @@ module.exports = coreJsData;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_customOmitClone.js":
+/*!*************************************************!*\
+  !*** ./node_modules/lodash/_customOmitClone.js ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isPlainObject = __webpack_require__(/*! ./isPlainObject */ "./node_modules/lodash/isPlainObject.js");
+
+/**
+ * Used by `_.omit` to customize its `_.cloneDeep` use to only clone plain
+ * objects.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @param {string} key The key of the property to inspect.
+ * @returns {*} Returns the uncloned value or `undefined` to defer cloning to `_.cloneDeep`.
+ */
+function customOmitClone(value) {
+  return isPlainObject(value) ? undefined : value;
+}
+
+module.exports = customOmitClone;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_defineProperty.js":
 /*!************************************************!*\
   !*** ./node_modules/lodash/_defineProperty.js ***!
@@ -2284,6 +2499,33 @@ var defineProperty = (function() {
 }());
 
 module.exports = defineProperty;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/_flatRest.js":
+/*!******************************************!*\
+  !*** ./node_modules/lodash/_flatRest.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var flatten = __webpack_require__(/*! ./flatten */ "./node_modules/lodash/flatten.js"),
+    overRest = __webpack_require__(/*! ./_overRest */ "./node_modules/lodash/_overRest.js"),
+    setToString = __webpack_require__(/*! ./_setToString */ "./node_modules/lodash/_setToString.js");
+
+/**
+ * A specialized version of `baseRest` which flattens the rest array.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @returns {Function} Returns the new function.
+ */
+function flatRest(func) {
+  return setToString(overRest(func, undefined, flatten), func + '');
+}
+
+module.exports = flatRest;
 
 
 /***/ }),
@@ -3044,6 +3286,46 @@ module.exports = isIndex;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_isKey.js":
+/*!***************************************!*\
+  !*** ./node_modules/lodash/_isKey.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isArray = __webpack_require__(/*! ./isArray */ "./node_modules/lodash/isArray.js"),
+    isSymbol = __webpack_require__(/*! ./isSymbol */ "./node_modules/lodash/isSymbol.js");
+
+/** Used to match property names within property paths. */
+var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+    reIsPlainProp = /^\w*$/;
+
+/**
+ * Checks if `value` is a property name and not a property path.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+ */
+function isKey(value, object) {
+  if (isArray(value)) {
+    return false;
+  }
+  var type = typeof value;
+  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
+      value == null || isSymbol(value)) {
+    return true;
+  }
+  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
+    (object != null && value in Object(object));
+}
+
+module.exports = isKey;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_isKeyable.js":
 /*!*******************************************!*\
   !*** ./node_modules/lodash/_isKeyable.js ***!
@@ -3442,6 +3724,43 @@ module.exports = mapCacheSet;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_memoizeCapped.js":
+/*!***********************************************!*\
+  !*** ./node_modules/lodash/_memoizeCapped.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var memoize = __webpack_require__(/*! ./memoize */ "./node_modules/lodash/memoize.js");
+
+/** Used as the maximum memoize cache size. */
+var MAX_MEMOIZE_SIZE = 500;
+
+/**
+ * A specialized version of `_.memoize` which clears the memoized function's
+ * cache when it exceeds `MAX_MEMOIZE_SIZE`.
+ *
+ * @private
+ * @param {Function} func The function to have its output memoized.
+ * @returns {Function} Returns the new memoized function.
+ */
+function memoizeCapped(func) {
+  var result = memoize(func, function(key) {
+    if (cache.size === MAX_MEMOIZE_SIZE) {
+      cache.clear();
+    }
+    return key;
+  });
+
+  var cache = result.cache;
+  return result;
+}
+
+module.exports = memoizeCapped;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_nativeCreate.js":
 /*!**********************************************!*\
   !*** ./node_modules/lodash/_nativeCreate.js ***!
@@ -3651,6 +3970,33 @@ function overRest(func, start, transform) {
 }
 
 module.exports = overRest;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/_parent.js":
+/*!****************************************!*\
+  !*** ./node_modules/lodash/_parent.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseGet = __webpack_require__(/*! ./_baseGet */ "./node_modules/lodash/_baseGet.js"),
+    baseSlice = __webpack_require__(/*! ./_baseSlice */ "./node_modules/lodash/_baseSlice.js");
+
+/**
+ * Gets the parent value at `path` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array} path The path to get the parent value of.
+ * @returns {*} Returns the parent value.
+ */
+function parent(object, path) {
+  return path.length < 2 ? object : baseGet(object, baseSlice(path, 0, -1));
+}
+
+module.exports = parent;
 
 
 /***/ }),
@@ -3987,6 +4333,76 @@ module.exports = strictIndexOf;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/_stringToPath.js":
+/*!**********************************************!*\
+  !*** ./node_modules/lodash/_stringToPath.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var memoizeCapped = __webpack_require__(/*! ./_memoizeCapped */ "./node_modules/lodash/_memoizeCapped.js");
+
+/** Used to match property names within property paths. */
+var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+
+/** Used to match backslashes in property paths. */
+var reEscapeChar = /\\(\\)?/g;
+
+/**
+ * Converts `string` to a property path array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the property path array.
+ */
+var stringToPath = memoizeCapped(function(string) {
+  var result = [];
+  if (string.charCodeAt(0) === 46 /* . */) {
+    result.push('');
+  }
+  string.replace(rePropName, function(match, number, quote, subString) {
+    result.push(quote ? subString.replace(reEscapeChar, '$1') : (number || match));
+  });
+  return result;
+});
+
+module.exports = stringToPath;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/_toKey.js":
+/*!***************************************!*\
+  !*** ./node_modules/lodash/_toKey.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isSymbol = __webpack_require__(/*! ./isSymbol */ "./node_modules/lodash/isSymbol.js");
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+
+/**
+ * Converts `value` to a string key if it's not a string or symbol.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {string|symbol} Returns the key.
+ */
+function toKey(value) {
+  if (typeof value == 'string' || isSymbol(value)) {
+    return value;
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
+
+module.exports = toKey;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/_toSource.js":
 /*!******************************************!*\
   !*** ./node_modules/lodash/_toSource.js ***!
@@ -4236,6 +4652,39 @@ function eq(value, other) {
 }
 
 module.exports = eq;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/flatten.js":
+/*!****************************************!*\
+  !*** ./node_modules/lodash/flatten.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseFlatten = __webpack_require__(/*! ./_baseFlatten */ "./node_modules/lodash/_baseFlatten.js");
+
+/**
+ * Flattens `array` a single level deep.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {Array} array The array to flatten.
+ * @returns {Array} Returns the new flattened array.
+ * @example
+ *
+ * _.flatten([1, [2, [3, [4]], 5]]);
+ * // => [1, 2, [3, [4]], 5]
+ */
+function flatten(array) {
+  var length = array == null ? 0 : array.length;
+  return length ? baseFlatten(array, 1) : [];
+}
+
+module.exports = flatten;
 
 
 /***/ }),
@@ -4749,6 +5198,79 @@ module.exports = isObjectLike;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/isPlainObject.js":
+/*!**********************************************!*\
+  !*** ./node_modules/lodash/isPlainObject.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ "./node_modules/lodash/_baseGetTag.js"),
+    getPrototype = __webpack_require__(/*! ./_getPrototype */ "./node_modules/lodash/_getPrototype.js"),
+    isObjectLike = __webpack_require__(/*! ./isObjectLike */ "./node_modules/lodash/isObjectLike.js");
+
+/** `Object#toString` result references. */
+var objectTag = '[object Object]';
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype,
+    objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Used to infer the `Object` constructor. */
+var objectCtorString = funcToString.call(Object);
+
+/**
+ * Checks if `value` is a plain object, that is, an object created by the
+ * `Object` constructor or one with a `[[Prototype]]` of `null`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.8.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ * }
+ *
+ * _.isPlainObject(new Foo);
+ * // => false
+ *
+ * _.isPlainObject([1, 2, 3]);
+ * // => false
+ *
+ * _.isPlainObject({ 'x': 0, 'y': 0 });
+ * // => true
+ *
+ * _.isPlainObject(Object.create(null));
+ * // => true
+ */
+function isPlainObject(value) {
+  if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
+    return false;
+  }
+  var proto = getPrototype(value);
+  if (proto === null) {
+    return true;
+  }
+  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+  return typeof Ctor == 'function' && Ctor instanceof Ctor &&
+    funcToString.call(Ctor) == objectCtorString;
+}
+
+module.exports = isPlainObject;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/isSet.js":
 /*!**************************************!*\
   !*** ./node_modules/lodash/isSet.js ***!
@@ -4783,6 +5305,46 @@ var nodeIsSet = nodeUtil && nodeUtil.isSet;
 var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
 
 module.exports = isSet;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/isSymbol.js":
+/*!*****************************************!*\
+  !*** ./node_modules/lodash/isSymbol.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ "./node_modules/lodash/_baseGetTag.js"),
+    isObjectLike = __webpack_require__(/*! ./isObjectLike */ "./node_modules/lodash/isObjectLike.js");
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+}
+
+module.exports = isSymbol;
 
 
 /***/ }),
@@ -4916,6 +5478,189 @@ module.exports = keysIn;
 
 /***/ }),
 
+/***/ "./node_modules/lodash/last.js":
+/*!*************************************!*\
+  !*** ./node_modules/lodash/last.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Gets the last element of `array`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {Array} array The array to query.
+ * @returns {*} Returns the last element of `array`.
+ * @example
+ *
+ * _.last([1, 2, 3]);
+ * // => 3
+ */
+function last(array) {
+  var length = array == null ? 0 : array.length;
+  return length ? array[length - 1] : undefined;
+}
+
+module.exports = last;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/memoize.js":
+/*!****************************************!*\
+  !*** ./node_modules/lodash/memoize.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var MapCache = __webpack_require__(/*! ./_MapCache */ "./node_modules/lodash/_MapCache.js");
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/**
+ * Creates a function that memoizes the result of `func`. If `resolver` is
+ * provided, it determines the cache key for storing the result based on the
+ * arguments provided to the memoized function. By default, the first argument
+ * provided to the memoized function is used as the map cache key. The `func`
+ * is invoked with the `this` binding of the memoized function.
+ *
+ * **Note:** The cache is exposed as the `cache` property on the memoized
+ * function. Its creation may be customized by replacing the `_.memoize.Cache`
+ * constructor with one whose instances implement the
+ * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
+ * method interface of `clear`, `delete`, `get`, `has`, and `set`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to have its output memoized.
+ * @param {Function} [resolver] The function to resolve the cache key.
+ * @returns {Function} Returns the new memoized function.
+ * @example
+ *
+ * var object = { 'a': 1, 'b': 2 };
+ * var other = { 'c': 3, 'd': 4 };
+ *
+ * var values = _.memoize(_.values);
+ * values(object);
+ * // => [1, 2]
+ *
+ * values(other);
+ * // => [3, 4]
+ *
+ * object.a = 2;
+ * values(object);
+ * // => [1, 2]
+ *
+ * // Modify the result cache.
+ * values.cache.set(object, ['a', 'b']);
+ * values(object);
+ * // => ['a', 'b']
+ *
+ * // Replace `_.memoize.Cache`.
+ * _.memoize.Cache = WeakMap;
+ */
+function memoize(func, resolver) {
+  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  var memoized = function() {
+    var args = arguments,
+        key = resolver ? resolver.apply(this, args) : args[0],
+        cache = memoized.cache;
+
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    var result = func.apply(this, args);
+    memoized.cache = cache.set(key, result) || cache;
+    return result;
+  };
+  memoized.cache = new (memoize.Cache || MapCache);
+  return memoized;
+}
+
+// Expose `MapCache`.
+memoize.Cache = MapCache;
+
+module.exports = memoize;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/omit.js":
+/*!*************************************!*\
+  !*** ./node_modules/lodash/omit.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayMap = __webpack_require__(/*! ./_arrayMap */ "./node_modules/lodash/_arrayMap.js"),
+    baseClone = __webpack_require__(/*! ./_baseClone */ "./node_modules/lodash/_baseClone.js"),
+    baseUnset = __webpack_require__(/*! ./_baseUnset */ "./node_modules/lodash/_baseUnset.js"),
+    castPath = __webpack_require__(/*! ./_castPath */ "./node_modules/lodash/_castPath.js"),
+    copyObject = __webpack_require__(/*! ./_copyObject */ "./node_modules/lodash/_copyObject.js"),
+    customOmitClone = __webpack_require__(/*! ./_customOmitClone */ "./node_modules/lodash/_customOmitClone.js"),
+    flatRest = __webpack_require__(/*! ./_flatRest */ "./node_modules/lodash/_flatRest.js"),
+    getAllKeysIn = __webpack_require__(/*! ./_getAllKeysIn */ "./node_modules/lodash/_getAllKeysIn.js");
+
+/** Used to compose bitmasks for cloning. */
+var CLONE_DEEP_FLAG = 1,
+    CLONE_FLAT_FLAG = 2,
+    CLONE_SYMBOLS_FLAG = 4;
+
+/**
+ * The opposite of `_.pick`; this method creates an object composed of the
+ * own and inherited enumerable property paths of `object` that are not omitted.
+ *
+ * **Note:** This method is considerably slower than `_.pick`.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The source object.
+ * @param {...(string|string[])} [paths] The property paths to omit.
+ * @returns {Object} Returns the new object.
+ * @example
+ *
+ * var object = { 'a': 1, 'b': '2', 'c': 3 };
+ *
+ * _.omit(object, ['a', 'c']);
+ * // => { 'b': '2' }
+ */
+var omit = flatRest(function(object, paths) {
+  var result = {};
+  if (object == null) {
+    return result;
+  }
+  var isDeep = false;
+  paths = arrayMap(paths, function(path) {
+    path = castPath(path, object);
+    isDeep || (isDeep = path.length > 1);
+    return path;
+  });
+  copyObject(object, getAllKeysIn(object), result);
+  if (isDeep) {
+    result = baseClone(result, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
+  }
+  var length = paths.length;
+  while (length--) {
+    baseUnset(result, paths[length]);
+  }
+  return result;
+});
+
+module.exports = omit;
+
+
+/***/ }),
+
 /***/ "./node_modules/lodash/stubArray.js":
 /*!******************************************!*\
   !*** ./node_modules/lodash/stubArray.js ***!
@@ -4975,6 +5720,45 @@ function stubFalse() {
 }
 
 module.exports = stubFalse;
+
+
+/***/ }),
+
+/***/ "./node_modules/lodash/toString.js":
+/*!*****************************************!*\
+  !*** ./node_modules/lodash/toString.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseToString = __webpack_require__(/*! ./_baseToString */ "./node_modules/lodash/_baseToString.js");
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString(value) {
+  return value == null ? '' : baseToString(value);
+}
+
+module.exports = toString;
 
 
 /***/ }),
@@ -5112,11 +5896,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash_clone__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_clone__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var lodash_cloneDeep__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash/cloneDeep */ "./node_modules/lodash/cloneDeep.js");
 /* harmony import */ var lodash_cloneDeep__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash_cloneDeep__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./helpers */ "./src/helpers.ts");
-/* harmony import */ var _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SkedEventCollisionError */ "./src/SkedEventCollisionError.ts");
-/* harmony import */ var _SmoothScroller__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SmoothScroller */ "./src/SmoothScroller.ts");
-/* harmony import */ var _VNode__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./VNode */ "./src/VNode.ts");
-/* harmony import */ var _VTree__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./VTree */ "./src/VTree.ts");
+/* harmony import */ var lodash_omit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash/omit */ "./node_modules/lodash/omit.js");
+/* harmony import */ var lodash_omit__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash_omit__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./helpers */ "./src/helpers.ts");
+/* harmony import */ var _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SkedEventCollisionError */ "./src/SkedEventCollisionError.ts");
+/* harmony import */ var _SmoothScroller__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SmoothScroller */ "./src/SmoothScroller.ts");
+/* harmony import */ var _VNode__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./VNode */ "./src/VNode.ts");
+/* harmony import */ var _VTree__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./VTree */ "./src/VTree.ts");
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -5148,9 +5934,10 @@ var __assign = (undefined && undefined.__assign) || function () {
 
 
 
+
 var CURRENT_TZ_OFFSET = new Date().getTimezoneOffset();
 function createElement(tagName, props, children) {
-    return new _VNode__WEBPACK_IMPORTED_MODULE_5__["default"](tagName, props, children);
+    return new _VNode__WEBPACK_IMPORTED_MODULE_6__["default"](tagName, props, children);
 }
 var DefaultFormatters = {
     /**
@@ -5180,8 +5967,8 @@ var DefaultFormatters = {
         return ms;
     },
     duration: function (ms, opts) {
-        var h = Math.floor(ms / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_HOUR"]);
-        var m = Math.floor((ms % _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_HOUR"]) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"]);
+        var h = Math.floor(ms / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_HOUR"]);
+        var m = Math.floor((ms % _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_HOUR"]) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"]);
         var hrs = (opts && opts.hrs) || (h > 1 ? 'hrs' : 'hr');
         var min = (opts && opts.min) || (m > 1 ? 'mins' : 'min');
         var format = h ? h + hrs : '';
@@ -5221,8 +6008,8 @@ var SkedTape = /** @class */ (function (_super) {
         _this.showEventDuration = false;
         _this.showDates = true;
         _this.minIntervalBetween = 0;
-        _this.minTimeGapShown = 1 * _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"];
-        _this.maxTimeGapShown = 60 * _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"] - 1;
+        _this.minTimeGapShown = 1 * _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"];
+        _this.maxTimeGapShown = 60 * _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"] - 1;
         _this.tooSmallInterval = false;
         _this.scrollWithYWheel = false;
         _this.sorting = false;
@@ -5271,7 +6058,7 @@ var SkedTape = /** @class */ (function (_super) {
     SkedTape.prototype.destroy = function () {
         this.cleanup();
         this.root.innerHTML = '';
-        Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["removeClass"])(this.root, 'sked-tape sked-tape--has-dates');
+        Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["removeClass"])(this.root, 'sked-tape sked-tape--has-dates');
     };
     Object.defineProperty(SkedTape.prototype, "isDnDEnabled", {
         /**
@@ -5305,8 +6092,8 @@ var SkedTape = /** @class */ (function (_super) {
         if (start > end) {
             throw new Error('Invalid time range: ' + JSON.stringify([start, end]));
         }
-        this.start = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["floorHours"])(start);
-        this.end = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["ceilHours"])(end);
+        this.start = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["floorHours"])(start);
+        this.end = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["ceilHours"])(end);
         if (rerender) {
             this.scheduleRerender();
         }
@@ -5328,7 +6115,7 @@ var SkedTape = /** @class */ (function (_super) {
             end.setHours(maxHours);
         }
         else {
-            end = new Date(midnight.getTime() + _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_DAY"]);
+            end = new Date(midnight.getTime() + _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_DAY"]);
         }
         this.setTimespan(start, end, opts);
     };
@@ -5338,7 +6125,7 @@ var SkedTape = /** @class */ (function (_super) {
     SkedTape.prototype.setZoom = function (zoom) {
         this.zoom = Math.max(Math.min(zoom, this.maxZoom), this.minZoom);
         this.refs.canvas.style.width = this.computeCanvasWidth() + 'px';
-        (zoom >= 1 ? _helpers__WEBPACK_IMPORTED_MODULE_2__["removeClass"] : _helpers__WEBPACK_IMPORTED_MODULE_2__["addClass"])(this.root, 'sked-tape--condensed');
+        (zoom >= 1 ? _helpers__WEBPACK_IMPORTED_MODULE_3__["removeClass"] : _helpers__WEBPACK_IMPORTED_MODULE_3__["addClass"])(this.root, 'sked-tape--condensed');
     };
     SkedTape.prototype.resetZoom = function () {
         this.setZoom(1);
@@ -5415,7 +6202,7 @@ var SkedTape = /** @class */ (function (_super) {
         var _this = this;
         if (event.start && event.end) {
             return this.events.find(function (iEvent) { return (event.locationId === iEvent.locationId &&
-                Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["gapBetween"])(event, iEvent) < _this.minIntervalBetween); });
+                Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["gapBetween"])(event, iEvent) < _this.minIntervalBetween); });
         }
         return null;
     };
@@ -5444,7 +6231,7 @@ var SkedTape = /** @class */ (function (_super) {
         if (!mayIntersect) {
             var collided = this.collide(newEvent);
             if (collided) {
-                throw new _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_3__["default"](collided.id);
+                throw new _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_4__["default"](collided.id);
             }
         }
         var index = this.events.findIndex(function (iEvent) { return iEvent.id === newEvent.id; });
@@ -5508,7 +6295,7 @@ var SkedTape = /** @class */ (function (_super) {
                 for (var j = i + 1; j < this.events.length; ++j) {
                     var jEvent = this.events[j];
                     if (jEvent.locationId === locationId) {
-                        var intersection = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["rangesIntersection"])(iEvent, jEvent);
+                        var intersection = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["rangesIntersection"])(iEvent, jEvent);
                         if (intersection && !occupied(intersection)) {
                             // Intersection found and the exact time
                             // is unique (for rendering optimization purposes)
@@ -5550,11 +6337,9 @@ var SkedTape = /** @class */ (function (_super) {
         // Skip if some event is being dragged right now
         if (!this.isDraggingEvent()) {
             this.dragDummyEvent({
-                draggedEvent: event,
-                duration: event.end.getTime() - event.start.getTime(),
-                end: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event.end),
+                draggedEvent: __assign(__assign({}, lodash_omit__WEBPACK_IMPORTED_MODULE_2___default()(event, ['duration'])), { end: new Date(this.start.getTime() + event.duration), locationId: 0, start: new Date(this.start) }),
+                duration: event.duration,
                 name: event.name,
-                start: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event.start),
                 takenFromTimeline: false,
             });
         }
@@ -5626,7 +6411,7 @@ var SkedTape = /** @class */ (function (_super) {
                 this.materializePartial(this.renderLocations());
             }
             catch (e) {
-                if (!(e instanceof _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_3__["default"])) {
+                if (!(e instanceof _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_4__["default"])) {
                     throw e;
                 }
                 if (this.onEventDropRefusal) {
@@ -5644,11 +6429,11 @@ var SkedTape = /** @class */ (function (_super) {
         var event = this.dummyEvent;
         var start = picked.date;
         if (this.snapToMins) {
-            var hr = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["floorHours"])(start);
-            var left = (start.getTime() - hr.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"];
+            var hr = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["floorHours"])(start);
+            var left = (start.getTime() - hr.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"];
             var lower = Math.floor(left / this.snapToMins) * this.snapToMins;
             var min = left - lower < this.snapToMins / 2 ? lower : lower + this.snapToMins;
-            start = new Date(hr.getTime() + Math.round(min * _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"]));
+            start = new Date(hr.getTime() + Math.round(min * _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"]));
         }
         event.start = start;
         event.end = new Date(start.getTime() + event.duration);
@@ -5683,9 +6468,9 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.prototype.pick = function (e) {
         var timeline = this.refs.timeline;
-        var scalar = (e.pageX - Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getElementOffset"])(timeline).left) / timeline.clientWidth;
+        var scalar = (e.pageX - Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getElementOffset"])(timeline).left) / timeline.clientWidth;
         var time = this.start.getTime() + scalar * (this.end.getTime() - this.start.getTime());
-        var rowEl = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["closest"])(e.target, '.sked-tape__event-row');
+        var rowEl = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["closest"])(e.target, '.sked-tape__event-row');
         return {
             date: new Date(Math.round(time)),
             locationId: rowEl ? parseInt(rowEl.dataset.locationId, 10) : undefined,
@@ -5711,7 +6496,7 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.prototype.registerEventHandler = function (type, selector, handler) {
         var listener = function (event) {
-            var currentTarget = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["closest"])(event.target, selector);
+            var currentTarget = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["closest"])(event.target, selector);
             if (currentTarget) {
                 handler(event, currentTarget);
             }
@@ -5757,7 +6542,7 @@ var SkedTape = /** @class */ (function (_super) {
         }
     };
     SkedTape.prototype.handleTimelineClick = function (mouseEvent) {
-        if (!Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["eventFromSkedEvent"])(mouseEvent)) {
+        if (!Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["eventFromSkedEvent"])(mouseEvent)) {
             if (this.dummyEvent && this.dummyEvent.locationId) {
                 this.completeEventDrag();
             }
@@ -5767,7 +6552,7 @@ var SkedTape = /** @class */ (function (_super) {
         }
     };
     SkedTape.prototype.handleTimelineContextMenu = function (mouseEvent) {
-        if (!Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["eventFromSkedEvent"])(mouseEvent)) {
+        if (!Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["eventFromSkedEvent"])(mouseEvent)) {
             mouseEvent.preventDefault();
             if (this.rmbCancelsDrag && this.isDraggingEvent()) {
                 this.cancelEventDrag();
@@ -5827,12 +6612,12 @@ var SkedTape = /** @class */ (function (_super) {
     SkedTape.prototype.computeEventWidth = function (event) {
         // Clamp to timeline edge
         var eventEnd = this.end < event.end ? this.end : event.end;
-        var durationHours = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getDurationHours"])(event.start, eventEnd);
-        return durationHours / Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getDurationHours"])(this.start, this.end) * 100 + '%';
+        var durationHours = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getDurationHours"])(event.start, eventEnd);
+        return durationHours / Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getDurationHours"])(this.start, this.end) * 100 + '%';
     };
     SkedTape.prototype.computeEventOffset = function (event) {
-        var hoursBeforeEvent = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getDurationHours"])(this.start, event.start);
-        return hoursBeforeEvent / Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getDurationHours"])(this.start, this.end) * 100 + '%';
+        var hoursBeforeEvent = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getDurationHours"])(this.start, event.start);
+        return hoursBeforeEvent / Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getDurationHours"])(this.start, this.end) * 100 + '%';
     };
     SkedTape.prototype.findEventJustBefore = function (event) {
         return this.events.reduce(function (found, iEvent) { return ((iEvent.locationId === event.locationId && // the same location
@@ -5862,7 +6647,7 @@ var SkedTape = /** @class */ (function (_super) {
         return this.end.getTime() - this.start.getTime();
     };
     SkedTape.prototype.computeCanvasWidth = function () {
-        var base = this.getTimelineSpan() / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_HOUR"] * this.baseHourWidth;
+        var base = this.getTimelineSpan() / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_HOUR"] * this.baseHourWidth;
         return Math.round(base * this.zoom);
     };
     SkedTape.prototype.cleanup = function () {
@@ -5935,7 +6720,7 @@ var SkedTape = /** @class */ (function (_super) {
             if (_this.isGapTooSmall(nearestEvents)) {
                 classes.push('sked-tape__event--low-gap');
             }
-            else if (Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["countRangesIntersections"])(nearestEvents) > 0) {
+            else if (Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["countRangesIntersections"])(nearestEvents) > 0) {
                 // We just have no a specific class for that yet...
                 classes.push('sked-tape__event--low-gap');
             }
@@ -5950,7 +6735,7 @@ var SkedTape = /** @class */ (function (_super) {
         var style = {};
         var tzOffset = location.tzOffset === undefined ? this.tzOffset : location.tzOffset;
         var tzDiff = tzOffset - CURRENT_TZ_OFFSET;
-        var now = new Date().getTime() - tzDiff * _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"];
+        var now = new Date().getTime() - tzDiff * _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"];
         var start = this.start.getTime();
         var end = this.end.getTime();
         if (now >= start && now <= end) {
@@ -5973,7 +6758,7 @@ var SkedTape = /** @class */ (function (_super) {
                 left: this.computeEventOffset(block),
                 width: this.computeEventWidth(block),
             },
-        }, createElement('span', { className: 'sked-tape__gap-text' }, Math.round(gap / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"]) + ''));
+        }, createElement('span', { className: 'sked-tape__gap-text' }, Math.round(gap / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"]) + ''));
     };
     SkedTape.prototype.renderGaps = function (events, intersections) {
         var lastEndTime = 0;
@@ -6015,18 +6800,18 @@ var SkedTape = /** @class */ (function (_super) {
         if (this.showIntermission) {
             var prevEvent = this.findEventJustBefore(event);
             if (prevEvent) {
-                var interval = (event.start.getTime() - prevEvent.end.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"];
+                var interval = (event.start.getTime() - prevEvent.end.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"];
                 if (interval >= this.intermissionRange[0] &&
                     interval <= this.intermissionRange[1]) {
-                    leftText = leftText.concat(createElement('br'), this.format.duration(interval * _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"]));
+                    leftText = leftText.concat(createElement('br'), this.format.duration(interval * _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"]));
                 }
             }
             var nextEvent = this.findEventJustAfter(event);
             if (nextEvent) {
-                var interval = (nextEvent.start.getTime() - event.end.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"];
+                var interval = (nextEvent.start.getTime() - event.end.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"];
                 if (interval >= this.intermissionRange[0] &&
                     interval <= this.intermissionRange[1]) {
-                    rightText = rightText.concat(createElement('br'), this.format.duration(interval * _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_MINUTE"]));
+                    rightText = rightText.concat(createElement('br'), this.format.duration(interval * _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_MINUTE"]));
                 }
             }
         }
@@ -6090,8 +6875,8 @@ var SkedTape = /** @class */ (function (_super) {
         })));
     };
     SkedTape.prototype.renderDates = function () {
-        var firstMidnight = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getMidnightAfter"])(this.start);
-        var lastMidnight = Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getMidnightBefore"])(this.end);
+        var firstMidnight = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getMidnightAfter"])(this.start);
+        var lastMidnight = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getMidnightBefore"])(this.end);
         var queue = [];
         if (firstMidnight > lastMidnight) {
             // The range is within the same day
@@ -6100,16 +6885,16 @@ var SkedTape = /** @class */ (function (_super) {
         else {
             queue.push({
                 text: this.format.date(this.start),
-                weight: Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getMsToMidnight"])(this.start) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_DAY"],
+                weight: Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getMsToMidnight"])(this.start) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_DAY"],
             });
             for (var day = new Date(firstMidnight); day < lastMidnight;) {
                 day.setTime(day.getTime() + 1000);
                 queue.push({ weight: 1, text: this.format.date(day) });
-                day.setTime(day.getTime() + _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_DAY"] - 1000);
+                day.setTime(day.getTime() + _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_DAY"] - 1000);
             }
             queue.push({
                 text: this.format.date(this.end),
-                weight: Object(_helpers__WEBPACK_IMPORTED_MODULE_2__["getMsFromMidnight"])(this.end) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_DAY"],
+                weight: Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getMsFromMidnight"])(this.end) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_DAY"],
             });
         }
         var totalWeight = queue.reduce(function (total, item) { return total + item.weight; }, 0);
@@ -6117,7 +6902,7 @@ var SkedTape = /** @class */ (function (_super) {
         return createElement('ul', { className: 'sked-tape__dates' }, queue.map(function (item) {
             var proportion = item.weight / totalWeight;
             var classes = ['sked-tape__date'];
-            if (proportion * duration <= _helpers__WEBPACK_IMPORTED_MODULE_2__["SHORT_DURATION"]) {
+            if (proportion * duration <= _helpers__WEBPACK_IMPORTED_MODULE_3__["SHORT_DURATION"]) {
                 classes.push('sked-tape__date--short');
             }
             return createElement('li', {
@@ -6128,7 +6913,7 @@ var SkedTape = /** @class */ (function (_super) {
         }));
     };
     SkedTape.prototype.renderGrid = function () {
-        var n = Math.floor((this.end.getTime() - this.start.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_2__["MS_PER_HOUR"]);
+        var n = Math.floor((this.end.getTime() - this.start.getTime()) / _helpers__WEBPACK_IMPORTED_MODULE_3__["MS_PER_HOUR"]);
         var lis = [];
         while (n-- > 0) {
             lis.push(createElement('li'));
@@ -6178,7 +6963,7 @@ var SkedTape = /** @class */ (function (_super) {
         ]);
         this.materialize(vRoot);
         if (!this.smoothScroller) {
-            this.smoothScroller = new _SmoothScroller__WEBPACK_IMPORTED_MODULE_4__["default"](this.refs.frame);
+            this.smoothScroller = new _SmoothScroller__WEBPACK_IMPORTED_MODULE_5__["default"](this.refs.frame);
         }
         else {
             this.smoothScroller.resetElement(this.refs.frame);
@@ -6221,7 +7006,7 @@ var SkedTape = /** @class */ (function (_super) {
     };
     SkedTape.format = DefaultFormatters;
     return SkedTape;
-}(_VTree__WEBPACK_IMPORTED_MODULE_6__["default"]));
+}(_VTree__WEBPACK_IMPORTED_MODULE_7__["default"]));
 /* harmony default export */ __webpack_exports__["default"] = (SkedTape);
 
 

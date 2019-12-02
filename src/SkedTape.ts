@@ -1,5 +1,6 @@
 import clone from 'lodash/clone';
 import cloneDeep from 'lodash/cloneDeep';
+import omit from 'lodash/omit';
 import {
   addClass,
   ceilHours,
@@ -71,6 +72,10 @@ export interface SkedEvent {
 export type SkedEventInput = Partial<
   Omit<SkedEvent, 'name' | 'locationId' | 'start' | 'end'>
 > & Pick<SkedEvent, 'name' | 'locationId' | 'start' | 'end'>;
+
+export type SkedDraggedEvent = Omit<SkedEventInput, 'start' | 'end' | 'locationId'> & {
+  duration: number,
+};
 
 interface SkedIntersection extends Range<Date> {
   events: SkedEvent[];
@@ -662,15 +667,18 @@ export default class SkedTape extends VTree {
     }
   }
 
-  public dragNewEvent(event: SkedEventInput) {
+  public dragNewEvent(event: SkedDraggedEvent) {
     // Skip if some event is being dragged right now
     if (!this.isDraggingEvent()) {
       this.dragDummyEvent({
-        draggedEvent: event,
-        duration: event.end.getTime() - event.start.getTime(),
-        end: clone(event.end),
+        draggedEvent: {
+          ...omit(event, ['duration']),
+          end: new Date(this.start.getTime() + event.duration),
+          locationId: 0,
+          start: new Date(this.start),
+        },
+        duration: event.duration,
         name: event.name,
-        start: clone(event.start),
         takenFromTimeline: false,
       });
     }
