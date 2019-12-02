@@ -6309,61 +6309,62 @@ var SkedTape = /** @class */ (function (_super) {
         return intersections;
     };
     SkedTape.prototype.dragEvent = function (eventId) {
-        // Skip if some event is being dragged right now
-        if (!this.isDraggingEvent()) {
-            var event_2 = this.getEvent(eventId);
-            // Make sure the event is allowed to be draggable
-            if (!this.onEventBeforeDrag || this.onEventBeforeDrag(event_2)) {
-                if (this.onEventDrag) {
-                    this.onEventDrag(event_2);
-                }
-                this.removeEvent(eventId, { rerender: false }); // Remove it from the data
-                // Rerender the row
-                var location_2 = this.getLocation(event_2.locationId);
-                var events = this.filterLocationEvents(location_2.id);
-                this.materializePartial(this.renderEventRow(location_2, events));
-                this.dragDummyEvent({
-                    draggedEvent: event_2,
-                    duration: event_2.end.getTime() - event_2.start.getTime(),
-                    end: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event_2.end),
-                    name: event_2.name,
-                    start: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event_2.start),
-                    takenFromTimeline: true,
-                });
+        // Cancel dragging the event is being dragged right now
+        if (this.isDraggingEvent()) {
+            this.cancelEventDrag();
+        }
+        var event = this.getEvent(eventId);
+        // Make sure the event is allowed to be draggable
+        if (!this.onEventBeforeDrag || this.onEventBeforeDrag(event)) {
+            if (this.onEventDrag) {
+                this.onEventDrag(event);
             }
+            this.removeEvent(eventId, { rerender: false }); // Remove it from the data
+            // Rerender the row
+            var location_2 = this.getLocation(event.locationId);
+            var events = this.filterLocationEvents(location_2.id);
+            this.materializePartial(this.renderEventRow(location_2, events));
+            this.dragDummyEvent({
+                draggedEvent: event,
+                duration: event.end.getTime() - event.start.getTime(),
+                end: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event.end),
+                name: event.name,
+                start: lodash_clone__WEBPACK_IMPORTED_MODULE_0___default()(event.start),
+                takenFromTimeline: true,
+            });
         }
     };
     SkedTape.prototype.dragNewEvent = function (event) {
-        // Skip if some event is being dragged right now
-        if (!this.isDraggingEvent()) {
-            this.dragDummyEvent({
-                draggedEvent: __assign(__assign({}, lodash_omit__WEBPACK_IMPORTED_MODULE_2___default()(event, ['duration'])), { end: new Date(this.start.getTime() + event.duration), locationId: 0, start: new Date(this.start) }),
-                duration: event.duration,
-                name: event.name,
-                takenFromTimeline: false,
-            });
+        // Cancel dragging the event is being dragged right now
+        if (this.isDraggingEvent()) {
+            this.cancelEventDrag();
         }
+        this.dragDummyEvent({
+            draggedEvent: __assign(__assign({}, lodash_omit__WEBPACK_IMPORTED_MODULE_2___default()(event, ['duration'])), { end: new Date(this.start.getTime() + event.duration), locationId: 0, start: new Date(this.start) }),
+            duration: event.duration,
+            name: event.name,
+            takenFromTimeline: false,
+        });
     };
     SkedTape.prototype.cancelEventDrag = function () {
         if (this.dummyEvent) {
             // Put the dragged event back onto the timeline
-            var event_3 = this.dummyEvent.draggedEvent;
+            var event_2 = this.dummyEvent.draggedEvent;
             if (this.dummyEvent.takenFromTimeline) {
-                this.putEvent(event_3, { mayIntersect: true });
-                var location_3 = this.getLocation(event_3.locationId);
+                this.putEvent(event_2, { mayIntersect: true });
+                var location_3 = this.getLocation(event_2.locationId);
                 var events = this.filterLocationEvents(location_3.id);
                 this.materializePartial(this.renderEventRow(location_3, events));
             }
             if (this.onEventDragCancel) {
-                this.onEventDragCancel(event_3);
+                this.onEventDragCancel(event_2);
             }
             // Clean up the dummy
             this.dematerializePartial('dummyEvent');
             delete this.dummyEvent;
+            // Rerender the locations in order to apply some classes if needed
+            this.materializePartial(this.renderLocations());
         }
-        // TODO: Observer pattern would be better here
-        // Rerender the locations in order to apply some classes if needed
-        this.materializePartial(this.renderLocations());
     };
     SkedTape.prototype.isDraggingEvent = function () {
         return !!this.dummyEvent;
@@ -6600,11 +6601,11 @@ var SkedTape = /** @class */ (function (_super) {
         if (this.tooSmallInterval !== false) {
             var lastEndTime = 0;
             for (var _i = 0, events_2 = events; _i < events_2.length; _i++) {
-                var event_4 = events_2[_i];
-                if (event_4.start.getTime() - lastEndTime <= this.tooSmallInterval) {
+                var event_3 = events_2[_i];
+                if (event_3.start.getTime() - lastEndTime <= this.tooSmallInterval) {
                     return true;
                 }
-                lastEndTime = event_4.end.getTime();
+                lastEndTime = event_3.end.getTime();
             }
         }
         return false;
@@ -6764,20 +6765,20 @@ var SkedTape = /** @class */ (function (_super) {
         var lastEndTime = 0;
         var lastEnd;
         var gaps = [];
-        var _loop_1 = function (event_5) {
+        var _loop_1 = function (event_4) {
             // whether the event intersects with some other
-            var intersects = !!intersections.find(function (intersection) { return !!intersection.events.find(function (iEvent) { return iEvent.id === event_5.id; }); });
-            var gap = event_5.start.getTime() - lastEndTime;
+            var intersects = !!intersections.find(function (intersection) { return !!intersection.events.find(function (iEvent) { return iEvent.id === event_4.id; }); });
+            var gap = event_4.start.getTime() - lastEndTime;
             if (gap >= this_1.minTimeGapShown && gap <= this_1.maxTimeGapShown && !intersects) {
-                gaps.push(this_1.renderGap(gap, lastEnd, event_5.start));
+                gaps.push(this_1.renderGap(gap, lastEnd, event_4.start));
             }
-            lastEnd = event_5.end;
+            lastEnd = event_4.end;
             lastEndTime = lastEnd.getTime();
         };
         var this_1 = this;
         for (var _i = 0, events_3 = events; _i < events_3.length; _i++) {
-            var event_5 = events_3[_i];
-            _loop_1(event_5);
+            var event_4 = events_3[_i];
+            _loop_1(event_4);
         }
         return gaps;
     };
