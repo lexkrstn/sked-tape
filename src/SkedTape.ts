@@ -1,3 +1,4 @@
+import clone from 'lodash/clone';
 import cloneDeep from 'lodash/cloneDeep';
 import {
   addClass,
@@ -67,7 +68,7 @@ export interface SkedEvent {
   };
 }
 
-export type PutEventInput = Partial<
+export type SkedEventInput = Partial<
   Omit<SkedEvent, 'name' | 'locationId' | 'start' | 'end'>
 > & Pick<SkedEvent, 'name' | 'locationId' | 'start' | 'end'>;
 
@@ -76,23 +77,14 @@ interface SkedIntersection extends Range<Date> {
 }
 
 export interface DummyEvent {
-  draggedEvent?: SkedEvent;
+  draggedEvent: SkedEventInput;
   duration: number;
   end?: Date;
-  id: number;
   locationId?: number;
   name: string;
   start?: Date;
-  userData?: {
-    [key: string]: any;
-  };
+  takenFromTimeline: boolean;
 }
-
-export type PutDummyEvent = Omit<DummyEvent, 'locationId' | 'start' | 'end'> & {
-  end: DummyEvent['end'],
-  locationId: DummyEvent['locationId'],
-  start: DummyEvent['start'],
-};
 
 export interface SkedFormatters {
   date(date: Date, endian?: 'm' | 'l', delim?: string): string;
@@ -261,7 +253,7 @@ export interface SkedTapeCtorOptions {
   /// programmatically call of `cancelEventDrag()`. The sole argument refers
   /// the event of timeline being dragged, which may be null (in case the drag
   /// was started with dragNewEvent()).
-  onEventDragCancel?: (event: SkedEvent) => void;
+  onEventDragCancel?: (event: SkedEventInput) => void;
   /// Fires when the user tries to drop the event dragged into the incorrect
   /// position occupied by some other event yet.
   onEventDropRefusal?: (event: DummyEvent) => void;
@@ -335,7 +327,7 @@ export default class SkedTape extends VTree {
   private onEventMenu: (event: SkedEvent, mouseEvent: MouseEvent) => void;
   private onEventBeforeDrag: (event: SkedEvent) => boolean;
   private onEventDrag: (event: SkedEvent) => void;
-  private onEventDragCancel: (event: SkedEvent) => void;
+  private onEventDragCancel: (event: SkedEventInput) => void;
   private onEventDropRefusal: (event: DummyEvent) => void;
   private onEventBeforeDrop: (event: DummyEvent) => boolean;
   private onEventDrop: (event: SkedEvent) => void;
@@ -523,7 +515,7 @@ export default class SkedTape extends VTree {
   }
 
   public putEvent(
-    event: PutEventInput,
+    event: SkedEventInput,
     { mayIntersect = false, rerender = true } = {},
   ) {
     if (!this.locationExists(event.locationId)) {
@@ -658,33 +650,37 @@ export default class SkedTape extends VTree {
         const events = this.filterLocationEvents(location.id);
         this.materializePartial(this.renderEventRow(location, events));
 
-        this.dragNewEvent({
+        this.dragDummyEvent({
           draggedEvent: event,
           duration: event.end.getTime() - event.start.getTime(),
-          id: event.id,
+          end: clone(event.end),
           name: event.name,
-          userData: event.userData ? { ...event.userData } : {},
+          start: clone(event.start),
+          takenFromTimeline: true,
         });
       }
     }
   }
 
-  public dragNewEvent(dummyEvent: DummyEvent) {
-    this.dummyEvent = dummyEvent;
-    // Place on the last mouse position on the timeline
-    if (this.lastPicked) {
-      this.moveDummyEvent(this.lastPicked);
+  public dragNewEvent(event: SkedEventInput) {
+    // Skip if some event is being dragged right now
+    if (!this.isDraggingEvent()) {
+      this.dragDummyEvent({
+        draggedEvent: event,
+        duration: event.end.getTime() - event.start.getTime(),
+        end: clone(event.end),
+        name: event.name,
+        start: clone(event.start),
+        takenFromTimeline: false,
+      });
     }
-    // TODO: Observer pattern would be better here
-    // Rerender the locations in order to apply some classes if needed
-    this.materializePartial(this.renderLocations());
   }
 
   public cancelEventDrag() {
     if (this.dummyEvent) {
       // Put the dragged event back onto the timeline
-      const event = this.dummyEvent.draggedEvent || null;
-      if (event) {
+      const event = this.dummyEvent.draggedEvent;
+      if (this.dummyEvent.takenFromTimeline) {
         this.putEvent(event, { mayIntersect: true });
         const location = this.getLocation(event.locationId);
         const events = this.filterLocationEvents(location.id);
@@ -710,10 +706,21 @@ export default class SkedTape extends VTree {
     this.snapToMins = mins;
   }
 
+  private dragDummyEvent(dummyEvent: DummyEvent) {
+    this.dummyEvent = dummyEvent;
+    // Place on the last mouse position on the timeline
+    if (this.lastPicked) {
+      this.moveDummyEvent(this.lastPicked);
+    }
+    // TODO: Observer pattern would be better here
+    // Rerender the locations in order to apply some classes if needed
+    this.materializePartial(this.renderLocations());
+  }
+
   private completeEventDrag() {
     const event = this.dummyEvent;
     // Check for collisions
-    if (this.collide(event) || isNaN(event.locationId) || !event.start) {
+    if (isNaN(event.locationId) || !event.start || this.collide(event)) {
       if (this.onEventDropRefusal) {
         this.onEventDropRefusal(event);
       }
@@ -727,7 +734,12 @@ export default class SkedTape extends VTree {
         this.dematerializePartial('dummyEvent');
         delete this.dummyEvent;
         // We've checked the locationId to be non NaN above
-        const newEvent = this.putEvent(event as PutDummyEvent);
+        const newEvent = this.putEvent({
+          ...cloneDeep(event.draggedEvent),
+          end: clone(event.end),
+          locationId: event.locationId,
+          start: clone(event.start),
+        });
         // Rerender the row of events
         const location = this.getLocation(event.locationId);
         const events = this.filterLocationEvents(location.id);
