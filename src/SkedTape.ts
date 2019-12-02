@@ -641,47 +641,49 @@ export default class SkedTape extends VTree {
   }
 
   public dragEvent(eventId: number) {
-    // Skip if some event is being dragged right now
-    if (!this.isDraggingEvent()) {
-      const event = this.getEvent(eventId);
-      // Make sure the event is allowed to be draggable
-      if (!this.onEventBeforeDrag || this.onEventBeforeDrag(event)) {
-        if (this.onEventDrag) {
-          this.onEventDrag(event);
-        }
-        this.removeEvent(eventId, { rerender: false }); // Remove it from the data
-        // Rerender the row
-        const location = this.getLocation(event.locationId);
-        const events = this.filterLocationEvents(location.id);
-        this.materializePartial(this.renderEventRow(location, events));
-
-        this.dragDummyEvent({
-          draggedEvent: event,
-          duration: event.end.getTime() - event.start.getTime(),
-          end: clone(event.end),
-          name: event.name,
-          start: clone(event.start),
-          takenFromTimeline: true,
-        });
+    // Cancel dragging the event is being dragged right now
+    if (this.isDraggingEvent()) {
+      this.cancelEventDrag();
+    }
+    const event = this.getEvent(eventId);
+    // Make sure the event is allowed to be draggable
+    if (!this.onEventBeforeDrag || this.onEventBeforeDrag(event)) {
+      if (this.onEventDrag) {
+        this.onEventDrag(event);
       }
+      this.removeEvent(eventId, { rerender: false }); // Remove it from the data
+      // Rerender the row
+      const location = this.getLocation(event.locationId);
+      const events = this.filterLocationEvents(location.id);
+      this.materializePartial(this.renderEventRow(location, events));
+
+      this.dragDummyEvent({
+        draggedEvent: event,
+        duration: event.end.getTime() - event.start.getTime(),
+        end: clone(event.end),
+        name: event.name,
+        start: clone(event.start),
+        takenFromTimeline: true,
+      });
     }
   }
 
   public dragNewEvent(event: SkedDraggedEvent) {
-    // Skip if some event is being dragged right now
-    if (!this.isDraggingEvent()) {
-      this.dragDummyEvent({
-        draggedEvent: {
-          ...omit(event, ['duration']),
-          end: new Date(this.start.getTime() + event.duration),
-          locationId: 0,
-          start: new Date(this.start),
-        },
-        duration: event.duration,
-        name: event.name,
-        takenFromTimeline: false,
-      });
+    // Cancel dragging the event is being dragged right now
+    if (this.isDraggingEvent()) {
+      this.cancelEventDrag();
     }
+    this.dragDummyEvent({
+      draggedEvent: {
+        ...omit(event, ['duration']),
+        end: new Date(this.start.getTime() + event.duration),
+        locationId: 0,
+        start: new Date(this.start),
+      },
+      duration: event.duration,
+      name: event.name,
+      takenFromTimeline: false,
+    });
   }
 
   public cancelEventDrag() {
