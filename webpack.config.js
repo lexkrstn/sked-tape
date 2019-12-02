@@ -4,7 +4,7 @@ const nodeFlag = require('node-flag');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { WebpackBundleSizeAnalyzerPlugin } = require('webpack-bundle-size-analyzer');
-const CopyPlugin = require('copy-webpack-plugin');
+const FileManagerPlugin = require('filemanager-webpack-plugin');
 
 const DEBUG = nodeFlag.get('mode') !== 'production';
 
@@ -21,6 +21,38 @@ const config = {
     libraryExport: 'default',
     filename: '[name].js',
     path: path.join(__dirname, 'dist'),
+  },
+  externals: {
+    'lodash/clone': {
+      commonjs: 'lodash/clone',
+      commonjs2: 'lodash/clone',
+      amd: 'lodash/clone',
+      root: ['_', 'clone'],
+    },
+    'lodash/cloneDeep': {
+      commonjs: 'lodash/cloneDeep',
+      commonjs2: 'lodash/cloneDeep',
+      amd: 'lodash/cloneDeep',
+      root: ['_', 'cloneDeep'],
+    },
+    'lodash/difference': {
+      commonjs: 'lodash/difference',
+      commonjs2: 'lodash/difference',
+      amd: 'lodash/difference',
+      root: ['_', 'difference'],
+    },
+    'lodash/intersection': {
+      commonjs: 'lodash/intersection',
+      commonjs2: 'lodash/intersection',
+      amd: 'lodash/intersection',
+      root: ['_', 'intersection'],
+    },
+    'lodash/omit': {
+      commonjs: 'lodash/omit',
+      commonjs2: 'lodash/omit',
+      amd: 'lodash/omit',
+      root: ['_', 'omit'],
+    },
   },
   module: {
     rules: [
@@ -105,13 +137,14 @@ const config = {
       filename: 'sked-tape.css',
       chunkFilename: '[name].css',
     }),
-    new CopyPlugin([
-      {
-        from: '*.*',
-        to: path.join(__dirname, 'public'),
-        context: 'dist',
+    new FileManagerPlugin({
+      onEnd: {
+        copy: [{
+          source: './dist/*.*',
+          destination: './public/',
+        }],
       },
-    ]),
+    }),
   ],
 };
 

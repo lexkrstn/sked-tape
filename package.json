@@ -15,14 +15,14 @@
     "test": "jest",
     "prepublishOnly": "npm run build"
   },
-  "dependencies": {
+  "peerDependencies": {
     "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
-    "copy-webpack-plugin": "^5.0.5",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
+    "filemanager-webpack-plugin": "^2.0.5",
     "jest": "^24.9.0",
     "mini-css-extract-plugin": "~0.8.0",
     "node-flag": "~1.5.1",
@@ -38,7 +38,6 @@
     "webpack": "^4.40.2",
     "webpack-bundle-size-analyzer": "^3.0.0",
     "webpack-cli": "^3.3.8",
-    "webpack-dev-server": "^3.8.0",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-dev-server": "^3.8.0"
   }
 }
