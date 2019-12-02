@@ -1,4 +1,4 @@
-import clone from 'lodash.clone';
+import cloneDeep from 'lodash/cloneDeep';
 import {
   addClass,
   ceilHours,
@@ -538,7 +538,7 @@ export default class SkedTape extends VTree {
     const newEvent: SkedEvent = {
       active: event.active || false,
       className: event.className || null,
-      data: event.data ? clone((event as SkedEvent).data) : {},
+      data: event.data ? cloneDeep((event as SkedEvent).data) : {},
       disabled: event.disabled || false,
       end: new Date(event.end),
       id: event.id ? event.id : ++this.lastEventId,
@@ -546,7 +546,7 @@ export default class SkedTape extends VTree {
       name: event.name,
       start: new Date(event.start),
       url: event.url || null,
-      userData: event.userData ? clone(event.userData) : {},
+      userData: event.userData ? cloneDeep(event.userData) : {},
     };
 
     if (!mayIntersect) {

@@ -1,6 +1,6 @@
-import clone from 'lodash.clone';
-import difference from 'lodash.difference';
-import intersection from 'lodash.intersection';
+import cloneDeep from 'lodash/clone';
+import difference from 'lodash/difference';
+import intersection from 'lodash/intersection';
 
 export interface VNodeProps {
   [key: string]: any;
@@ -215,9 +215,9 @@ export default class VNode {
 
   public clone(): VNode {
     const children = this.children.map(
-      child => child instanceof VNode ? child.clone() : clone(child),
+      child => child instanceof VNode ? child.clone() : cloneDeep(child),
     );
-    return new VNode(this.tagName, clone(this.props), children);
+    return new VNode(this.tagName, cloneDeep(this.props), children);
   }
 
   /**
@@ -226,14 +226,14 @@ export default class VNode {
    */
   public assign(vNode: VNode) {
     this.tagName = vNode.tagName;
-    this.props = clone(vNode.props);
+    this.props = cloneDeep(vNode.props);
     this.children = vNode.children.map(child => {
       if (child instanceof VNode) {
         child = child.clone();
         child.parent = this;
         return child;
       }
-      return clone(child);
+      return cloneDeep(child);
     });
     return this;
   }

@@ -15,16 +15,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "lodash.clone": "^4.5.0",
-    "lodash.difference": "^4.5.0",
-    "lodash.intersection": "^4.4.0",
-    "lodash.isequal": "^4.5.0"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "@types/lodash.clone": "^4.5.6",
-    "@types/lodash.difference": "^4.5.6",
-    "@types/lodash.intersection": "^4.4.6",
-    "@types/lodash.isequal": "^4.5.5",
+    "@types/lodash": "^4.14.149",
     "copy-webpack-plugin": "^5.0.5",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
