@@ -700,10 +700,9 @@ export default class SkedTape extends VTree {
       // Clean up the dummy
       this.dematerializePartial('dummyEvent');
       delete this.dummyEvent;
+      // Rerender the locations in order to apply some classes if needed
+      this.materializePartial(this.renderLocations());
     }
-    // TODO: Observer pattern would be better here
-    // Rerender the locations in order to apply some classes if needed
-    this.materializePartial(this.renderLocations());
   }
 
   public isDraggingEvent() {
