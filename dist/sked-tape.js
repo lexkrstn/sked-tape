@@ -265,7 +265,6 @@ var SkedTape = /** @class */ (function (_super) {
         _this.locations = [];
         _this.events = [];
         _this.format = DefaultFormatters;
-        _this.lastEventId = 0;
         _this.dndEnabled = false;
         _this.dummyEvent = null;
         _this.zoom = 1;
@@ -490,7 +489,7 @@ var SkedTape = /** @class */ (function (_super) {
             data: event.data ? lodash_cloneDeep__WEBPACK_IMPORTED_MODULE_1___default()(event.data) : {},
             disabled: event.disabled || false,
             end: new Date(event.end),
-            id: event.id ? event.id : ++this.lastEventId,
+            id: event.id ? event.id : this.uniqId(),
             locationId: event.locationId,
             name: event.name,
             start: new Date(event.start),
@@ -503,12 +502,17 @@ var SkedTape = /** @class */ (function (_super) {
                 throw new _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_4__["default"](collided.id);
             }
         }
-        var index = this.events.findIndex(function (iEvent) { return iEvent.id === newEvent.id; });
-        if (index >= 0) {
-            this.events[index] = newEvent;
+        if (event.id && this.dummyEvent.draggedEvent.id === event.id) {
+            this.dummyEvent.draggedEvent = newEvent;
         }
         else {
-            this.events.push(newEvent);
+            var index = this.events.findIndex(function (iEvent) { return iEvent.id === newEvent.id; });
+            if (index >= 0) {
+                this.events[index] = newEvent;
+            }
+            else {
+                this.events.push(newEvent);
+            }
         }
         if (rerender) {
             this.scheduleRerender();
@@ -878,6 +882,9 @@ var SkedTape = /** @class */ (function (_super) {
             }
         }
         return false;
+    };
+    SkedTape.prototype.uniqId = function () {
+        return 1 + this.events.reduce(function (id, event) { return Math.max(id, event.id); }, this.dummyEvent.draggedEvent.id || 0);
     };
     SkedTape.prototype.computeEventWidth = function (event) {
         // Clamp to timeline edge

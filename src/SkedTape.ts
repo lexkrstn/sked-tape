@@ -297,7 +297,6 @@ export default class SkedTape extends VTree {
   private locations: SkedLocation[] = [];
   private events: SkedEvent[] = [];
   private format: SkedFormatters = DefaultFormatters;
-  private lastEventId = 0;
   private dndEnabled = false;
   private dummyEvent: DummyEvent = null;
   private start: Date;
@@ -538,7 +537,7 @@ export default class SkedTape extends VTree {
       data: event.data ? cloneDeep((event as SkedEvent).data) : {},
       disabled: event.disabled || false,
       end: new Date(event.end),
-      id: event.id ? event.id : ++this.lastEventId,
+      id: event.id ? event.id : this.uniqId(),
       locationId: event.locationId,
       name: event.name,
       start: new Date(event.start),
@@ -553,11 +552,15 @@ export default class SkedTape extends VTree {
       }
     }
 
-    const index = this.events.findIndex(iEvent => iEvent.id === newEvent.id);
-    if (index >= 0) {
-      this.events[index] = newEvent;
+    if (event.id && this.dummyEvent.draggedEvent.id === event.id) {
+      this.dummyEvent.draggedEvent = newEvent;
     } else {
-      this.events.push(newEvent);
+      const index = this.events.findIndex(iEvent => iEvent.id === newEvent.id);
+      if (index >= 0) {
+        this.events[index] = newEvent;
+      } else {
+        this.events.push(newEvent);
+      }
     }
 
     if (rerender) {
@@ -977,6 +980,12 @@ export default class SkedTape extends VTree {
       }
     }
     return false;
+  }
+
+  private uniqId(): number {
+    return 1 + this.events.reduce(
+      (id, event) => Math.max(id, event.id),
+      this.dummyEvent.draggedEvent.id || 0);
   }
 
   private computeEventWidth(event: Range<Date>): string {
