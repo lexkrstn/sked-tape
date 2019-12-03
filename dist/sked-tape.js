@@ -620,7 +620,7 @@ var SkedTape = /** @class */ (function (_super) {
             // Put the dragged event back onto the timeline
             var event_2 = this.dummyEvent.draggedEvent;
             if (this.dummyEvent.takenFromTimeline) {
-                this.putEvent(event_2, { mayIntersect: true });
+                this.putEvent(event_2, { mayIntersect: true, rerender: false });
                 var location_3 = this.getLocation(event_2.locationId);
                 var events = this.filterLocationEvents(location_3.id);
                 this.materializePartial(this.renderEventRow(location_3, events));
@@ -1570,7 +1570,7 @@ var VNode = /** @class */ (function () {
                 srcVNode.children[i] instanceof VNode) {
                 // Both source and destination are VNode which implies the dstChild to
                 // be an HTMLElement.
-                VNode.commit(dstChild, dstVNode.children[i], srcVNode.children[i], refs);
+                dstChild = VNode.commit(dstChild, dstVNode.children[i], srcVNode.children[i], refs);
                 dstChild = dstChild.nextSibling;
             }
             else {

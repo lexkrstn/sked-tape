@@ -691,7 +691,7 @@ export default class SkedTape extends VTree {
       // Put the dragged event back onto the timeline
       const event = this.dummyEvent.draggedEvent;
       if (this.dummyEvent.takenFromTimeline) {
-        this.putEvent(event, { mayIntersect: true });
+        this.putEvent(event, { mayIntersect: true, rerender: false });
         const location = this.getLocation(event.locationId);
         const events = this.filterLocationEvents(location.id);
         this.materializePartial(this.renderEventRow(location, events));

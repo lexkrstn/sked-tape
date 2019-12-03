@@ -120,7 +120,7 @@ export default class VNode {
       ) {
         // Both source and destination are VNode which implies the dstChild to
         // be an HTMLElement.
-        VNode.commit(
+        dstChild = VNode.commit(
           dstChild as HTMLElement,
           dstVNode.children[i] as VNode,
           srcVNode.children[i] as VNode,
