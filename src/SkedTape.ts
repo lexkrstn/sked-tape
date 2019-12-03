@@ -552,7 +552,7 @@ export default class SkedTape extends VTree {
       }
     }
 
-    if (event.id && this.dummyEvent.draggedEvent.id === event.id) {
+    if (event.id && this.dummyEvent && this.dummyEvent.draggedEvent.id === event.id) {
       this.dummyEvent.draggedEvent = newEvent;
     } else {
       const index = this.events.findIndex(iEvent => iEvent.id === newEvent.id);
@@ -985,7 +985,7 @@ export default class SkedTape extends VTree {
   private uniqId(): number {
     return 1 + this.events.reduce(
       (id, event) => Math.max(id, event.id),
-      this.dummyEvent.draggedEvent.id || 0);
+      (this.dummyEvent && this.dummyEvent.draggedEvent.id) || 0);
   }
 
   private computeEventWidth(event: Range<Date>): string {
