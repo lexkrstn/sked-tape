@@ -502,7 +502,7 @@ var SkedTape = /** @class */ (function (_super) {
                 throw new _SkedEventCollisionError__WEBPACK_IMPORTED_MODULE_4__["default"](collided.id);
             }
         }
-        if (event.id && this.dummyEvent.draggedEvent.id === event.id) {
+        if (event.id && this.dummyEvent && this.dummyEvent.draggedEvent.id === event.id) {
             this.dummyEvent.draggedEvent = newEvent;
         }
         else {
@@ -843,22 +843,32 @@ var SkedTape = /** @class */ (function (_super) {
         }
     };
     SkedTape.prototype.handleKeyDown = function (kbdEvent) {
-        if (kbdEvent.key === '+') {
-            this.zoomIn();
+        var oldZoom = this.zoom;
+        switch (kbdEvent.key) {
+            case '+':
+                this.zoomIn();
+                break;
+            case '-':
+                this.zoomOut();
+                break;
         }
-        else if (kbdEvent.key === '-') {
-            this.zoomOut();
+        if (oldZoom !== this.zoom && this.onZoom) {
+            this.onZoom(this.zoom);
         }
     };
     SkedTape.prototype.handleWheel = function (wheelEvent) {
         if (wheelEvent.ctrlKey) {
             wheelEvent.preventDefault();
             wheelEvent.stopPropagation();
+            var oldZoom = this.zoom;
             if (wheelEvent.deltaY < 0) {
                 this.zoomIn();
             }
             else {
                 this.zoomOut();
+            }
+            if (oldZoom !== this.zoom && this.onZoom) {
+                this.onZoom(this.zoom);
             }
         }
         else if (!wheelEvent.shiftKey && this.scrollWithYWheel) {
@@ -884,7 +894,7 @@ var SkedTape = /** @class */ (function (_super) {
         return false;
     };
     SkedTape.prototype.uniqId = function () {
-        return 1 + this.events.reduce(function (id, event) { return Math.max(id, event.id); }, this.dummyEvent.draggedEvent.id || 0);
+        return 1 + this.events.reduce(function (id, event) { return Math.max(id, event.id); }, (this.dummyEvent && this.dummyEvent.draggedEvent.id) || 0);
     };
     SkedTape.prototype.computeEventWidth = function (event) {
         // Clamp to timeline edge

@@ -286,6 +286,8 @@ export interface SkedTapeCtorOptions {
   onTimelineClick: (event: MouseEvent, pointData: PointData) => void;
   /// Fires when the user clicks on a non-occupied point of the timeline with RMB.
   onTimelineMenu: (event: MouseEvent, pointData: PointData) => void;
+  /// Fires when the user zooms in or out. Not called on programmatic zooming.
+  onZoom: (zoom: number) => void;
 }
 
 /**
@@ -347,6 +349,7 @@ export default class SkedTape extends VTree {
   ) => void;
   private onTimelineClick: (event: MouseEvent, pointData: PointData) => void;
   private onTimelineMenu: (event: MouseEvent, pointData: PointData) => void;
+  private onZoom: (zoom: number) => void;
   private smoothScroller: SmoothScroller;
   private animFrameId: any;
 
@@ -943,10 +946,13 @@ export default class SkedTape extends VTree {
   }
 
   private handleKeyDown(kbdEvent: KeyboardEvent) {
-    if (kbdEvent.key === '+') {
-      this.zoomIn();
-    } else if (kbdEvent.key === '-') {
-      this.zoomOut();
+    const oldZoom = this.zoom;
+    switch (kbdEvent.key) {
+      case '+': this.zoomIn(); break;
+      case '-': this.zoomOut(); break;
+    }
+    if (oldZoom !== this.zoom && this.onZoom) {
+      this.onZoom(this.zoom);
     }
   }
 
@@ -954,10 +960,14 @@ export default class SkedTape extends VTree {
     if (wheelEvent.ctrlKey) {
       wheelEvent.preventDefault();
       wheelEvent.stopPropagation();
+      const oldZoom = this.zoom;
       if (wheelEvent.deltaY < 0) {
         this.zoomIn();
       } else {
         this.zoomOut();
+      }
+      if (oldZoom !== this.zoom && this.onZoom) {
+        this.onZoom(this.zoom);
       }
     } else if (!wheelEvent.shiftKey && this.scrollWithYWheel) {
       wheelEvent.preventDefault();
