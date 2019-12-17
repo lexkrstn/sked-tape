@@ -141,7 +141,7 @@ const config = {
       onEnd: {
         copy: [{
           source: './dist/*.*',
-          destination: './public/',
+          destination: './docs/',
         }],
       },
     }),
@@ -161,7 +161,7 @@ if (DEBUG) {
     ],
     devServer: {
       contentBase: [
-        path.join(__dirname, 'public'),
+        path.join(__dirname, 'docs'),
         path.join(__dirname, 'dist'),
       ],
     },
