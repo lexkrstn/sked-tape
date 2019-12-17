@@ -2,7 +2,6 @@ export const SECS_PER_DAY = 24 * 60 * 60;
 export const MS_PER_DAY = SECS_PER_DAY * 1000;
 export const MS_PER_MINUTE = 60 * 1000;
 export const MS_PER_HOUR = 60 * MS_PER_MINUTE;
-export const SHORT_DURATION = 2 * MS_PER_HOUR - 1; // < this ? .sked-tape__date--short
 
 export interface Range<T> {
   start: T;

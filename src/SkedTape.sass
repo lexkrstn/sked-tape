@@ -4,6 +4,8 @@
 
 // general
 $skedtape-use-sticky-header: false !default
+$skedtape-condense-hours: false !default;
+$skedtape-condense-dates: false !default;
 
 // dimensions
 $skedtape-hour-column-width: 96px !default
@@ -127,8 +129,9 @@ $skedtape-background-color: white !default
 					left: 0
 					font-size: 13px
 					white-space: nowrap
-					@at-root .sked-tape--condensed &
-						font-size: 10px
+					@if $skedtape-condense-hours
+						@at-root .sked-tape--condensed &
+							font-size: 10px
 				&:not(:first-child) > time
 					transform: translateX(-50%)
 				&:not(:first-child) > time + time
@@ -330,8 +333,9 @@ $skedtape-background-color: white !default
 		overflow: hidden
 		white-space: nowrap
 		background: #e0e0e0
-		@at-root .sked-tape--condensed &
-			font-size: 10px
+		@if $skedtape-condense-dates
+			@at-root .sked-tape--condensed &
+				font-size: 10px
 		&:nth-child(odd)
 			background: #eee
 		&:before, &:after
@@ -349,10 +353,10 @@ $skedtape-background-color: white !default
 			float: right
 			margin-right: 15px
 			text-align: right
-		@at-root .sked-tape--condensed &:before, &--short:before
+		&--short:before
 			float: none
 			width: auto
 			margin: 0 2px
 			text-align: center
-		@at-root .sked-tape--condensed &:after, &--short:after
+		&--short:after
 			display: none

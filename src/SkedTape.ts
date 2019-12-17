@@ -21,7 +21,6 @@ import {
   Range,
   rangesIntersection,
   removeClass,
-  SHORT_DURATION,
 } from './helpers';
 import SkedEventCollisionError from './SkedEventCollisionError';
 import SmoothScroller from './SmoothScroller';
@@ -203,6 +202,10 @@ export interface SkedTapeCtorOptions {
   intermissionRange?: [number, number];
   /// Turns on drag and drop events.
   dndEnabled?: boolean;
+  /// Date text width in pixel. The value is used to decide whether it is
+  /// preferable to show dates on both sides of the ruler. This value must be
+  /// greater the actual one by the horizontal padding (30px by default).
+  dateTextWidth: number;
   /// The hook invoked to determine whether an event may be added to a location.
   /// The default implementation always returns *true*.
   /// You should avoid mutating the arguments in this hook (that may cause
@@ -270,24 +273,24 @@ export interface SkedTapeCtorOptions {
   onEventDrop?: (event: SkedEvent) => void;
   /// Fires when the user clicks on a DOM element being rendered to outline
   /// intersection of events.
-  onIntersectionClick: (
+  onIntersectionClick?: (
     events: SkedEvent[],
     pointData: PointData,
     mouseEvent: MouseEvent,
   ) => void;
   /// Fires when the user clicks with right mouse button on a DOM element being
   /// rendered to outline intersection of events.
-  onIntersectionMenu: (
+  onIntersectionMenu?: (
     events: SkedEvent[],
     pointData: PointData,
     mouseEvent: MouseEvent,
   ) => void;
   /// Fires when the user clicks on a non-occupied point of the timeline.
-  onTimelineClick: (event: MouseEvent, pointData: PointData) => void;
+  onTimelineClick?: (event: MouseEvent, pointData: PointData) => void;
   /// Fires when the user clicks on a non-occupied point of the timeline with RMB.
-  onTimelineMenu: (event: MouseEvent, pointData: PointData) => void;
+  onTimelineMenu?: (event: MouseEvent, pointData: PointData) => void;
   /// Fires when the user zooms in or out. Not called on programmatic zooming.
-  onZoom: (zoom: number) => void;
+  onZoom?: (zoom: number) => void;
 }
 
 /**
@@ -300,6 +303,7 @@ export default class SkedTape extends VTree {
   private events: SkedEvent[] = [];
   private format: SkedFormatters = DefaultFormatters;
   private dndEnabled = false;
+  private dateTextWidth = 110;
   private dummyEvent: DummyEvent = null;
   private start: Date;
   private end: Date;
@@ -435,6 +439,9 @@ export default class SkedTape extends VTree {
     this.zoom = Math.max(Math.min(zoom, this.maxZoom), this.minZoom);
     (this.refs.canvas as HTMLElement).style.width = this.computeCanvasWidth() + 'px';
     (zoom >= 1 ? removeClass : addClass)(this.root, 'sked-tape--condensed');
+    // Rerender dates manually here so that they may decide whether it is
+    // required for them to be rendered with or without &--short modifier.
+    this.materializePartial(this.renderDates());
   }
 
   public resetZoom() {
@@ -1430,14 +1437,14 @@ export default class SkedTape extends VTree {
       });
     }
     const totalWeight = queue.reduce((total, item) => total + item.weight, 0);
-    const duration = this.end.getTime() - this.start.getTime();
+    const canvasWidth = this.computeCanvasWidth();
     return createElement(
       'ul',
-      { className: 'sked-tape__dates' },
+      { className: 'sked-tape__dates', ref: 'dates' },
       queue.map(item => {
         const proportion = item.weight / totalWeight;
         const classes = ['sked-tape__date'];
-        if (proportion * duration <= SHORT_DURATION) {
+        if (proportion * canvasWidth < this.dateTextWidth) {
           classes.push('sked-tape__date--short');
         }
         return createElement(

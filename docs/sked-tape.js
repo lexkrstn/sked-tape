@@ -266,6 +266,7 @@ var SkedTape = /** @class */ (function (_super) {
         _this.events = [];
         _this.format = DefaultFormatters;
         _this.dndEnabled = false;
+        _this.dateTextWidth = 110;
         _this.dummyEvent = null;
         _this.zoom = 1;
         _this.minZoom = 0.5;
@@ -394,6 +395,9 @@ var SkedTape = /** @class */ (function (_super) {
         this.zoom = Math.max(Math.min(zoom, this.maxZoom), this.minZoom);
         this.refs.canvas.style.width = this.computeCanvasWidth() + 'px';
         (zoom >= 1 ? _helpers__WEBPACK_IMPORTED_MODULE_3__["removeClass"] : _helpers__WEBPACK_IMPORTED_MODULE_3__["addClass"])(this.root, 'sked-tape--condensed');
+        // Rerender dates manually here so that they may decide whether it is
+        // required for them to be rendered with or without &--short modifier.
+        this.materializePartial(this.renderDates());
     };
     SkedTape.prototype.resetZoom = function () {
         this.setZoom(1);
@@ -1162,6 +1166,7 @@ var SkedTape = /** @class */ (function (_super) {
         })));
     };
     SkedTape.prototype.renderDates = function () {
+        var _this = this;
         var firstMidnight = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getMidnightAfter"])(this.start);
         var lastMidnight = Object(_helpers__WEBPACK_IMPORTED_MODULE_3__["getMidnightBefore"])(this.end);
         var queue = [];
@@ -1185,11 +1190,11 @@ var SkedTape = /** @class */ (function (_super) {
             });
         }
         var totalWeight = queue.reduce(function (total, item) { return total + item.weight; }, 0);
-        var duration = this.end.getTime() - this.start.getTime();
-        return createElement('ul', { className: 'sked-tape__dates' }, queue.map(function (item) {
+        var canvasWidth = this.computeCanvasWidth();
+        return createElement('ul', { className: 'sked-tape__dates', ref: 'dates' }, queue.map(function (item) {
             var proportion = item.weight / totalWeight;
             var classes = ['sked-tape__date'];
-            if (proportion * duration <= _helpers__WEBPACK_IMPORTED_MODULE_3__["SHORT_DURATION"]) {
+            if (proportion * canvasWidth < _this.dateTextWidth) {
                 classes.push('sked-tape__date--short');
             }
             return createElement('li', {
@@ -1854,7 +1859,7 @@ var VTree = /** @class */ (function () {
 /*!************************!*\
   !*** ./src/helpers.ts ***!
   \************************/
-/*! exports provided: SECS_PER_DAY, MS_PER_DAY, MS_PER_MINUTE, MS_PER_HOUR, SHORT_DURATION, rangesIntersection, countRangesIntersections, closest, removeClass, addClass, getElementOffset, floorHours, ceilHours, eventFromSkedEvent, getDurationHours, getMsFromMidnight, getMsToMidnight, getMidnightAfter, getMidnightBefore, gapBetween */
+/*! exports provided: SECS_PER_DAY, MS_PER_DAY, MS_PER_MINUTE, MS_PER_HOUR, rangesIntersection, countRangesIntersections, closest, removeClass, addClass, getElementOffset, floorHours, ceilHours, eventFromSkedEvent, getDurationHours, getMsFromMidnight, getMsToMidnight, getMidnightAfter, getMidnightBefore, gapBetween */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1863,7 +1868,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MS_PER_DAY", function() { return MS_PER_DAY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MS_PER_MINUTE", function() { return MS_PER_MINUTE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MS_PER_HOUR", function() { return MS_PER_HOUR; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SHORT_DURATION", function() { return SHORT_DURATION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "rangesIntersection", function() { return rangesIntersection; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "countRangesIntersections", function() { return countRangesIntersections; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "closest", function() { return closest; });
@@ -1883,7 +1887,6 @@ var SECS_PER_DAY = 24 * 60 * 60;
 var MS_PER_DAY = SECS_PER_DAY * 1000;
 var MS_PER_MINUTE = 60 * 1000;
 var MS_PER_HOUR = 60 * MS_PER_MINUTE;
-var SHORT_DURATION = 2 * MS_PER_HOUR - 1; // < this ? .sked-tape__date--short
 function rangesIntersection(a, b) {
     var min = a.start < b.start ? a : b;
     var max = min === a ? b : a;

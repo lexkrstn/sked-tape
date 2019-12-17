@@ -87,8 +87,6 @@
           left: 0;
           font-size: 13px;
           white-space: nowrap; }
-          .sked-tape--condensed .sked-tape__hours > ul > li > time {
-            font-size: 10px; }
         .sked-tape__hours > ul > li:not(:first-child) > time {
           transform: translateX(-50%); }
         .sked-tape__hours > ul > li:not(:first-child) > time + time {
@@ -270,8 +268,6 @@
     overflow: hidden;
     white-space: nowrap;
     background: #e0e0e0; }
-    .sked-tape--condensed .sked-tape__date {
-      font-size: 10px; }
     .sked-tape__date:nth-child(odd) {
       background: #eee; }
     .sked-tape__date:before, .sked-tape__date:after {
@@ -289,12 +285,12 @@
       float: right;
       margin-right: 15px;
       text-align: right; }
-    .sked-tape--condensed .sked-tape__date:before, .sked-tape__date--short:before {
+    .sked-tape__date--short:before {
       float: none;
       width: auto;
       margin: 0 2px;
       text-align: center; }
-    .sked-tape--condensed .sked-tape__date:after, .sked-tape__date--short:after {
+    .sked-tape__date--short:after {
       display: none; }
 
 
