@@ -134,6 +134,11 @@ $skedtape-background-color: white !default
 							font-size: 10px
 				&:not(:first-child) > time
 					transform: translateX(-50%)
+				@if not($skedtape-condense-hours)
+					@at-root .sked-tape--condensed & > time
+						transform: none
+					@at-root .sked-tape--condensed &:last-child > time:last-child
+						display: none
 				&:not(:first-child) > time + time
 					left: auto
 					right: 0
